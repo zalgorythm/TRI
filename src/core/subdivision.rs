@@ -2,6 +2,7 @@
 
 use rust_decimal::Decimal;
 use uuid::Uuid;
+use serde::{Deserialize, Serialize};
 
 use crate::core::{
     triangle::Triangle,
@@ -11,7 +12,7 @@ use crate::core::{
 };
 
 /// Result of a triangle subdivision operation
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SubdivisionResult {
     /// The three child triangles created
     pub children: [FractalTriangle; 3],
