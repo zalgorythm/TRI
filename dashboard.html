@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriadChain Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 16px;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px 0;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .wallet-card {
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e5e5ea);
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .wallet-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .balance {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 4px;
+        }
+
+        .balance-usd {
+            font-size: 16px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--tg-theme-section-separator-color, #e5e5ea);
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999999);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .triangles-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .triangle-item {
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--tg-theme-section-separator-color, #e5e5ea);
+        }
+
+        .triangle-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .triangle-info {
+            flex: 1;
+        }
+
+        .triangle-address {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 2px;
+        }
+
+        .triangle-details {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .triangle-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--tg-theme-button-color, #007aff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .btn-secondary {
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            color: var(--tg-theme-text-color, #000000);
+            border: 1px solid var(--tg-theme-section-separator-color, #e5e5ea);
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        .mining-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mining-info {
+            flex: 1;
+        }
+
+        .mining-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .mining-details {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .mining-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--tg-theme-section-separator-color, #e5e5ea);
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">△</div>
+        <h1>TriadChain</h1>
+        <div class="subtitle">Geometric Cryptocurrency</div>
+    </div>
+
+    <div class="wallet-card">
+        <div class="wallet-header">
+            <div class="wallet-title">Your Wallet</div>
+        </div>
+        <div class="balance" id="balance">2,847.32</div>
+        <div class="balance-usd" id="balance-usd">≈ $1,423.66 USD</div>
+    </div>
+
+    <div class="mining-status">
+        <div class="mining-info">
+            <div class="mining-title">Mining Active</div>
+            <div class="mining-details">Hashrate: 125.4 H/s • 3 blocks found</div>
+        </div>
+        <div class="mining-indicator"></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="owned-triangles">47</div>
+            <div class="stat-label">Owned Triangles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="staked-amount">1,250</div>
+            <div class="stat-label">Staked TC</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="total-value">$2,847</div>
+            <div class="stat-label">Portfolio Value</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="mining-rewards">+127.8</div>
+            <div class="stat-label">24h Rewards</div>
+        </div>
+    </div>
+
+    <div class="triangles-section">
+        <div class="section-title">Recent Triangles</div>
+        
+        <div class="triangle-item">
+            <div class="triangle-icon">△</div>
+            <div class="triangle-info">
+                <div class="triangle-address">ST7f2a8e9d3c5b1f</div>
+                <div class="triangle-details">Depth 4 • Area 0.0625 • Active</div>
+            </div>
+            <div class="triangle-value">234.7 TC</div>
+        </div>
+
+        <div class="triangle-item">
+            <div class="triangle-icon">▽</div>
+            <div class="triangle-info">
+                <div class="triangle-address">ST9b4f7e2a8d5c3e</div>
+                <div class="triangle-details">Depth 3 • Area 0.125 • Subdivided</div>
+            </div>
+            <div class="triangle-value">187.3 TC</div>
+        </div>
+
+        <div class="triangle-item">
+            <div class="triangle-icon">△</div>
+            <div class="triangle-info">
+                <div class="triangle-address">ST5c8f1a9e4d7b2a</div>
+                <div class="triangle-details">Depth 5 • Area 0.03125 • Staked</div>
+            </div>
+            <div class="triangle-value">456.1 TC</div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="sendTransaction()">Send TC</button>
+        <button class="btn btn-secondary" onclick="receiveTC()">Receive TC</button>
+        <button class="btn btn-primary" onclick="startMining()">Mine Triangles</button>
+        <button class="btn btn-secondary" onclick="stakeTokens()">Stake Tokens</button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-text">TriadChain v0.1.0 • Powered by Sierpinski Fractals</div>
+    </div>
+
+    <script>
+        // Initialize Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+
+        // Set up the main button
+        tg.MainButton.text = "Open TriadChain";
+        tg.MainButton.show();
+
+        // Expand the app
+        tg.expand();
+
+        // Mock data and functions for demo
+        function updateBalance() {
+            const balance = document.getElementById('balance');
+            const balanceUSD = document.getElementById('balance-usd');
+            
+            // Simulate real-time balance updates
+            const currentBalance = parseFloat(balance.textContent.replace(',', ''));
+            const fluctuation = (Math.random() - 0.5) * 10;
+            const newBalance = currentBalance + fluctuation;
+            const usdValue = newBalance * 0.5; // Assuming 1 TC = $0.50
+            
+            balance.textContent = newBalance.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            balanceUSD.textContent = `≈ $${usdValue.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })} USD`;
+        }
+
+        function sendTransaction() {
+            tg.showAlert("Send TC functionality would open here");
+        }
+
+        function receiveTC() {
+            tg.showAlert("Your receive address: ST" + Math.random().toString(36).substring(7));
+        }
+
+        function startMining() {
+            tg.showConfirm("Start mining geometric triangles?", (confirmed) => {
+                if (confirmed) {
+                    tg.showAlert("Mining started! You'll earn rewards for solving geometric proofs.");
+                }
+            });
+        }
+
+        function stakeTokens() {
+            tg.showAlert("Stake tokens functionality would open here");
+        }
+
+        // Simulate real-time updates
+        setInterval(updateBalance, 30000); // Update every 30 seconds
+
+        // Handle Telegram Web App events
+        tg.onEvent('mainButtonClicked', function() {
+            tg.showAlert("Welcome to TriadChain!");
+        });
+
+        tg.onEvent('viewportChanged', function() {
+            // Handle viewport changes
+            console.log('Viewport changed');
+        });
+
+        // Set theme colors based on Telegram theme
+        function updateTheme() {
+            const isDark = tg.colorScheme === 'dark';
+            document.body.classList.toggle('dark-theme', isDark);
+        }
+
+        updateTheme();
+        tg.onEvent('themeChanged', updateTheme);
+
+        // Haptic feedback for buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                tg.HapticFeedback.impactOccurred('medium');
+            });
+        });
+    </script>
+</body>
+</html>
