@@ -14,8 +14,6 @@ use triadchain::{
         address::TriangleAddress,
         wallet::TriadChainWallet,
         blockchain::TriadChainBlockchain,
-        economics::TokenEconomics,
-        mining::{GeometricMiner, MinerConfig},
     },
     visualization::renderer::render_fractal_svg,
 };
@@ -31,8 +29,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Show help message
-    Help,
     /// Show bot status
     Start,
     /// Get blockchain statistics
@@ -195,7 +191,6 @@ fn main() {
     let cli = Cli::parse();
     
     match cli.command {
-        Commands::Help => handle_help(),
         Commands::Start => handle_start(),
         Commands::Stats => handle_stats(),
         Commands::Newwallet => handle_newwallet(),
@@ -453,33 +448,6 @@ fn handle_address(args: AddressArgs) {
     }
 }
 
-fn handle_help() {
-    println!("TriadChain CLI - Geometric Cryptocurrency Operations");
-    println!("==================================================");
-    println!();
-    println!("Available Commands:");
-    println!("  help             - Show this help message");
-    println!("  start            - Show bot status");
-    println!("  stats            - Get blockchain statistics");
-    println!("  newwallet        - Create a new wallet");
-    println!("  balance <addr>   - Get wallet balance for address");
-    println!("  difficulty       - Get current mining difficulty");
-    println!("  latestblock      - Get latest block information");
-    println!("  generatetriangle - Generate a triangle fractal");
-    println!("  validateaddress  - Validate triangle address");
-    println!("  triangleinfo     - Get triangle information");
-    println!("  economics        - Show economic metrics");
-    println!("  stakingpools     - Show staking pools");
-    println!();
-    println!("Legacy Commands:");
-    println!("  generate         - Generate fractal structure");
-    println!("  validate         - Validate fractal structure");
-    println!("  info             - Display fractal information");
-    println!("  render           - Render fractal to SVG");
-    println!("  address          - Address operations");
-    println!();
-    println!("Use --help with any command for detailed options");
-}
 
 fn handle_start() {
     println!("🚀 TriadChain Bot Status");
@@ -509,34 +477,46 @@ fn handle_stats() {
     println!();
     
     // Initialize a demo blockchain for stats
-    let blockchain = TriadChainBlockchain::new();
-    
-    println!("⛓️  Blockchain Stats:");
-    println!("  • Chain Height: {}", blockchain.blocks.len());
-    println!("  • Total Blocks: {}", blockchain.blocks.len());
-    println!("  • Pending Transactions: {}", blockchain.mempool.len());
-    println!("  • Difficulty: {}", blockchain.difficulty);
-    println!();
-    
-    println!("🔺 Triangle Stats:");
-    println!("  • Total Triangles: {}", blockchain.fractal_state.total_triangles());
-    println!("  • Active Triangles: {}", blockchain.fractal_state.active_count());
-    println!("  • Subdivided: {}", blockchain.fractal_state.subdivided_count());
-    println!("  • Maximum Depth: {}", blockchain.fractal_state.max_depth());
-    println!();
-    
-    println!("💰 Economic Stats:");
-    println!("  • Circulating Supply: 1,000,000 TC");
-    println!("  • Total Supply: 10,000,000 TC");
-    println!("  • Market Cap: $500,000");
-    println!("  • Price: $0.50 USD");
-    println!();
-    
-    println!("⛏️  Mining Stats:");
-    println!("  • Network Hashrate: 1.5 KH/s");
-    println!("  • Average Block Time: 60s");
-    println!("  • Last Block: 2 minutes ago");
-    println!("  • Next Difficulty Adjustment: 144 blocks");
+    match TriadChainBlockchain::new() {
+        Ok(blockchain) => {
+            println!("⛓️  Blockchain Stats:");
+            println!("  • Chain Height: {}", blockchain.blocks.len());
+            println!("  • Total Blocks: {}", blockchain.blocks.len());
+            println!("  • Pending Transactions: {}", blockchain.mempool.len());
+            println!("  • Difficulty: {}", blockchain.difficulty);
+            println!();
+            
+            println!("🔺 Triangle Stats:");
+            println!("  • Total Triangles: {}", blockchain.fractal_state.total_triangles());
+            println!("  • Active Triangles: {}", blockchain.fractal_state.triangles_by_state(triadchain::core::state::TriangleState::Active).len());
+            println!("  • Subdivided: {}", blockchain.fractal_state.triangles_by_state(triadchain::core::state::TriangleState::Subdivided).len());
+            println!("  • Maximum Depth: {}", blockchain.fractal_state.max_depth());
+            println!();
+            
+            println!("💰 Economic Stats:");
+            println!("  • Circulating Supply: 1,000,000 TC");
+            println!("  • Total Supply: 10,000,000 TC");
+            println!("  • Market Cap: $500,000");
+            println!("  • Price: $0.50 USD");
+            println!();
+            
+            println!("⛏️  Mining Stats:");
+            println!("  • Network Hashrate: 1.5 KH/s");
+            println!("  • Average Block Time: 60s");
+            println!("  • Last Block: 2 minutes ago");
+            println!("  • Next Difficulty Adjustment: 144 blocks");
+        },
+        Err(e) => {
+            eprintln!("❌ Failed to initialize blockchain: {}", e);
+            println!("\n🔺 Using Mock Statistics:");
+            println!("  • Total Triangles: 127");
+            println!("  • Active Triangles: 64");
+            println!("  • Subdivided: 63");
+            println!("  • Maximum Depth: 6");
+            println!("  • Chain Height: 1,234");
+            println!("  • Difficulty: 4");
+        }
+    }
 }
 
 fn handle_newwallet() {
@@ -612,34 +592,43 @@ fn handle_difficulty() {
     println!("============================");
     println!();
     
-    let blockchain = TriadChainBlockchain::new();
-    
-    println!("🎯 Difficulty Metrics:");
-    println!("  • Current Difficulty: {}", blockchain.difficulty);
-    println!("  • Target Block Time: 60 seconds");
-    println!("  • Last Adjustment: 72 blocks ago");
-    println!("  • Next Adjustment: in 72 blocks");
-    println!();
-    
-    println!("📊 Network Stats:");
-    println!("  • Network Hashrate: 1,245 H/s");
-    println!("  • Your Hashrate: 125 H/s (10.0%)");
-    println!("  • Estimated Time to Block: ~8 minutes");
-    println!();
-    
-    println!("🔺 Geometric Difficulty:");
-    println!("  • Required Subdivisions: {}", std::cmp::min(blockchain.difficulty / 2, 10));
-    println!("  • Area Precision: 10 decimals");
-    println!("  • Triangle Validation: Strict");
-    println!();
-    
-    println!("📈 Recent Changes:");
-    if blockchain.difficulty > 1000 {
-        println!("  • Status: ⬆️  Increased (+5.2%)");
-        println!("  • Reason: Network hashrate increased");
-    } else {
-        println!("  • Status: ➡️  Stable (0.0%)");
-        println!("  • Reason: Hashrate steady");
+    match TriadChainBlockchain::new() {
+        Ok(blockchain) => {
+            println!("🎯 Difficulty Metrics:");
+            println!("  • Current Difficulty: {}", blockchain.difficulty);
+            println!("  • Target Block Time: 60 seconds");
+            println!("  • Last Adjustment: 72 blocks ago");
+            println!("  • Next Adjustment: in 72 blocks");
+            println!();
+            
+            println!("📊 Network Stats:");
+            println!("  • Network Hashrate: 1,245 H/s");
+            println!("  • Your Hashrate: 125 H/s (10.0%)");
+            println!("  • Estimated Time to Block: ~8 minutes");
+            println!();
+            
+            println!("🔺 Geometric Difficulty:");
+            println!("  • Required Subdivisions: {}", std::cmp::min(blockchain.difficulty / 2, 10));
+            println!("  • Area Precision: 10 decimals");
+            println!("  • Triangle Validation: Strict");
+            println!();
+            
+            println!("📈 Recent Changes:");
+            if blockchain.difficulty > 1000 {
+                println!("  • Status: ⬆️  Increased (+5.2%)");
+                println!("  • Reason: Network hashrate increased");
+            } else {
+                println!("  • Status: ➡️  Stable (0.0%)");
+                println!("  • Reason: Hashrate steady");
+            }
+        },
+        Err(e) => {
+            eprintln!("❌ Failed to initialize blockchain: {}", e);
+            println!("\n🔺 Using Mock Difficulty Data:");
+            println!("  • Current Difficulty: 4");
+            println!("  • Target Block Time: 60 seconds");
+            println!("  • Required Subdivisions: 2");
+        }
     }
 }
 
@@ -648,46 +637,56 @@ fn handle_latestblock() {
     println!("==========================");
     println!();
     
-    let blockchain = TriadChainBlockchain::new();
-    
-    if let Some(latest_block) = blockchain.blocks.last() {
-        println!("🔗 Block Details:");
-        println!("  • Height: {}", latest_block.height);
-        println!("  • Hash: {}", latest_block.hash()[..16].to_string() + "...");
-        println!("  • Timestamp: {}", chrono::DateTime::from_timestamp(latest_block.header.timestamp as i64, 0)
-            .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
-            .unwrap_or_else(|| "Unknown".to_string()));
-        println!("  • Size: {} bytes", latest_block.header.merkle_root.len() * 32); // rough estimate
-        println!();
-        
-        println!("⛏️  Mining Details:");
-        println!("  • Miner: {}", latest_block.header.miner_address);
-        println!("  • Difficulty: {}", latest_block.header.difficulty);
-        println!("  • Nonce: {}", latest_block.geometric_proof.nonce);
-        println!("  • Mining Time: ~45 seconds");
-        println!();
-        
-        println!("🔺 Geometric Proof:");
-        println!("  • Triangle Hash: {}", &latest_block.geometric_proof.triangle_hash[..16] + "...");
-        println!("  • Area Conservation: {}", if latest_block.geometric_proof.area_conservation { "✅ Valid" } else { "❌ Invalid" });
-        println!("  • Subdivision Valid: {}", if latest_block.geometric_proof.subdivision_valid { "✅ Yes" } else { "❌ No" });
-        println!();
-        
-        println!("📊 Transactions:");
-        println!("  • Count: {}", latest_block.triangle_transactions.len());
-        println!("  • Total Fees: {} TC", latest_block.triangle_transactions.iter()
-            .map(|tx| tx.gas_fee)
-            .sum::<Decimal>());
-        println!("  • Volume: {} TC", latest_block.triangle_transactions.len() * 10); // mock volume
-    } else {
-        println!("❌ No blocks found in the blockchain");
+    match TriadChainBlockchain::new() {
+        Ok(blockchain) => {
+            if let Some(latest_block) = blockchain.blocks.last() {
+                println!("🔗 Block Details:");
+                println!("  • Height: {}", latest_block.height);
+                println!("  • Hash: {}...", &latest_block.hash()[..16]);
+                println!("  • Timestamp: {}", chrono::DateTime::from_timestamp(latest_block.header.timestamp as i64, 0)
+                    .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
+                    .unwrap_or_else(|| "Unknown".to_string()));
+                println!("  • Size: {} bytes", latest_block.header.merkle_root.len() * 32); // rough estimate
+                println!();
+                
+                println!("⛏️  Mining Details:");
+                println!("  • Miner: {}", latest_block.miner_address);
+                println!("  • Difficulty: {}", latest_block.header.difficulty);
+                println!("  • Nonce: {}", latest_block.geometric_proof.nonce);
+                println!("  • Mining Time: ~45 seconds");
+                println!();
+                
+                println!("🔺 Geometric Proof:");
+                println!("  • Triangle Hash: {}...", &latest_block.geometric_proof.triangle_hash[..16]);
+                println!("  • Area Conservation: {}", if latest_block.geometric_proof.area_conservation { "✅ Valid" } else { "❌ Invalid" });
+                println!("  • Subdivision Valid: {}", if latest_block.geometric_proof.subdivision_valid { "✅ Yes" } else { "❌ No" });
+                println!();
+                
+                println!("📊 Transactions:");
+                println!("  • Count: {}", latest_block.triangle_transactions.len());
+                println!("  • Total Fees: {} TC", latest_block.triangle_transactions.iter()
+                    .map(|tx| tx.gas_fee)
+                    .sum::<Decimal>());
+                println!("  • Volume: {} TC", latest_block.triangle_transactions.len() * 10); // mock volume
+            } else {
+                println!("❌ No blocks found in the blockchain");
+            }
+            
+            println!();
+            println!("🔮 Next Block:");
+            println!("  • Estimated Time: ~2 minutes");
+            println!("  • Pending Transactions: {}", blockchain.mempool.len());
+            println!("  • Expected Difficulty: {}", blockchain.difficulty);
+        },
+        Err(e) => {
+            eprintln!("❌ Failed to initialize blockchain: {}", e);
+            println!("\n📦 Mock Latest Block:");
+            println!("  • Height: 1,234");
+            println!("  • Difficulty: 4");
+            println!("  • Transactions: 3");
+            println!("  • Estimated Time: ~2 minutes");
+        }
     }
-    
-    println!();
-    println!("🔮 Next Block:");
-    println!("  • Estimated Time: ~2 minutes");
-    println!("  • Pending Transactions: {}", blockchain.mempool.len());
-    println!("  • Expected Difficulty: {}", blockchain.difficulty);
 }
 
 fn handle_generatetriangle(args: GenerateTriangleArgs) {
@@ -701,8 +700,8 @@ fn handle_generatetriangle(args: GenerateTriangleArgs) {
     println!("✅ Generated {} triangles", structure.total_triangles());
     
     // Calculate statistics
-    let active_count = structure.active_count();
-    let subdivided_count = structure.subdivided_count();
+    let active_count = structure.triangles_by_state(triadchain::core::state::TriangleState::Active).len();
+    let subdivided_count = structure.triangles_by_state(triadchain::core::state::TriangleState::Subdivided).len();
     
     println!();
     println!("📊 Generation Statistics:");
@@ -831,7 +830,7 @@ fn handle_triangleinfo(address: String) {
             // Mock triangle data since we don't have access to actual triangle
             let area = Decimal::new(1, 0) / Decimal::new(2_i64.pow(addr.depth() as u32), 0);
             println!("  • Area: {} units²", area);
-            println!("  • Perimeter: {} units", area.sqrt().unwrap_or_default() * Decimal::new(3, 0));
+            println!("  • Perimeter: {} units", area * Decimal::new(3, 0));
             println!("  • Type: Equilateral");
             println!("  • Orientation: Upward");
             println!();
@@ -849,8 +848,8 @@ fn handle_triangleinfo(address: String) {
             println!("⛏️  Mining Information:");
             println!("  • Mined: 3 days ago");
             println!("  • Miner: ST5f6e7d8c9b0a1f");
-            println!("  • Block Height: {}", 1000 + addr.depth());
-            println!("  • Mining Difficulty: {}", 1000 + addr.depth() * 100);
+            println!("  • Block Height: {}", 1000 + addr.depth() as u32);
+            println!("  • Mining Difficulty: {}", 1000 + (addr.depth() as u32) * 100);
             println!();
             
             println!("🔄 Transaction History:");
