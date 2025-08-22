@@ -1,6 +1,6 @@
 //! Peer-to-peer networking for Sierpinski Triangle cryptocurrency
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
@@ -255,7 +255,7 @@ impl NetworkNode {
                 println!("🆕 Received new block at height {}", block.height);
                 
                 // Validate and potentially add to blockchain
-                let mut blockchain_guard = blockchain.lock().unwrap();
+                let _blockchain_guard = blockchain.lock().unwrap();
                 if let Err(e) = block.validate() {
                     println!("❌ Invalid block received: {}", e);
                 } else {
@@ -375,7 +375,7 @@ impl NetworkNode {
                 println!("📥 Syncing from peer {} (height: {})", peer.peer_id, peer.blockchain_height);
                 
                 // Request blocks
-                let request = NetworkMessage::BlockRequest {
+                let _request = NetworkMessage::BlockRequest {
                     start_height: our_height,
                     count: (peer.blockchain_height - our_height) as u32,
                 };

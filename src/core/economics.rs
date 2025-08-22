@@ -7,8 +7,6 @@ use rust_decimal::Decimal;
 use crate::core::{
     address::TriangleAddress,
     triangle::Triangle,
-    fractal::FractalStructure,
-    blockchain::TriadChainBlockchain,
     errors::{SierpinskiError, SierpinskiResult},
 };
 
@@ -315,7 +313,7 @@ impl EconomicsEngine {
 
     /// Update token supply after block mining
     pub fn update_supply_after_block(&mut self, 
-        new_triangles_created: u32,
+        _new_triangles_created: u32,
         subdivisions_performed: u32
     ) -> SierpinskiResult<()> {
         // Add inflation from block rewards

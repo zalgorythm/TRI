@@ -48,6 +48,7 @@ pub struct TriangleOwnership {
 }
 
 /// Transaction builder for creating signed transactions
+#[allow(dead_code)]
 pub struct TransactionBuilder {
     wallet: TriadChainWallet,
     gas_price: Decimal,
@@ -184,7 +185,7 @@ impl TriadChainWallet {
     }
 
     /// Estimate the value of a triangle based on its properties
-    fn estimate_triangle_value(&self, address: &TriangleAddress, blockchain: &TriadChainBlockchain) -> Decimal {
+    fn estimate_triangle_value(&self, address: &TriangleAddress, _blockchain: &TriadChainBlockchain) -> Decimal {
         // Value increases with depth (rarity) and decreases with age
         let depth_multiplier = {
             let mut result = Decimal::new(2, 0);
