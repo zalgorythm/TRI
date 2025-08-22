@@ -3,8 +3,7 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
-use ed25519_dalek::{Keypair, PublicKey, SecretKey, Signature, Signer, Verifier};
-use rand::rngs::OsRng;
+use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
 
 use crate::core::{
     address::TriangleAddress,
@@ -20,11 +19,11 @@ pub struct TriadChainWallet {
     /// Wallet identifier
     pub wallet_id: String,
     /// Public key for the wallet
-    #[serde(with = "public_key_serde")]
-    pub public_key: PublicKey,
+    #[serde(with = "verifying_key_serde")]
+    pub public_key: VerifyingKey,
     /// Encrypted private key (in real implementation)
     #[serde(skip_serializing)]
-    keypair: Option<Keypair>,
+    signing_key: Option<SigningKey>,
     /// Owned triangle addresses
     pub owned_triangles: HashMap<TriangleAddress, TriangleOwnership>,
     /// Transaction history
@@ -57,16 +56,15 @@ pub struct TransactionBuilder {
 impl TriadChainWallet {
     /// Create a new wallet with generated keypair
     pub fn new() -> SierpinskiResult<Self> {
-        let mut csprng = OsRng {};
-        let keypair = Keypair::generate(&mut csprng);
-        let public_key = keypair.public;
+        let signing_key = SigningKey::from_bytes(&rand::random::<[u8; 32]>());
+        let public_key = signing_key.verifying_key();
         
         let wallet_id = Self::derive_wallet_address(&public_key);
         
         Ok(TriadChainWallet {
             wallet_id,
             public_key,
-            keypair: Some(keypair),
+            signing_key: Some(signing_key),
             owned_triangles: HashMap::new(),
             transaction_history: Vec::new(),
             balance: Decimal::ZERO,
@@ -78,15 +76,15 @@ impl TriadChainWallet {
         })
     }
 
-    /// Create wallet from existing keypair (for recovery)
-    pub fn from_keypair(keypair: Keypair) -> Self {
-        let public_key = keypair.public;
+    /// Create wallet from existing signing key (for recovery)
+    pub fn from_signing_key(signing_key: SigningKey) -> Self {
+        let public_key = signing_key.verifying_key();
         let wallet_id = Self::derive_wallet_address(&public_key);
         
         TriadChainWallet {
             wallet_id,
             public_key,
-            keypair: Some(keypair),
+            signing_key: Some(signing_key),
             owned_triangles: HashMap::new(),
             transaction_history: Vec::new(),
             balance: Decimal::ZERO,
@@ -99,7 +97,7 @@ impl TriadChainWallet {
     }
 
     /// Derive wallet address from public key
-    fn derive_wallet_address(public_key: &PublicKey) -> String {
+    fn derive_wallet_address(public_key: &VerifyingKey) -> String {
         let mut hasher = blake3::Hasher::new();
         hasher.update(public_key.as_bytes());
         let hash = hasher.finalize();
@@ -108,8 +106,8 @@ impl TriadChainWallet {
 
     /// Sign a transaction
     pub fn sign_transaction(&self, transaction: &mut TriangleTransaction) -> SierpinskiResult<()> {
-        let keypair = self.keypair.as_ref()
-            .ok_or_else(|| SierpinskiError::validation("Wallet keypair not available"))?;
+        let signing_key = self.signing_key.as_ref()
+            .ok_or_else(|| SierpinskiError::validation("Wallet signing key not available"))?;
 
         // Create message to sign
         let message = format!(
@@ -121,7 +119,7 @@ impl TriadChainWallet {
         );
 
         // Sign the message
-        let signature = keypair.sign(message.as_bytes());
+        let signature = signing_key.sign(message.as_bytes());
         transaction.signature = signature.to_bytes().to_vec();
 
         Ok(())
@@ -130,7 +128,7 @@ impl TriadChainWallet {
     /// Verify a transaction signature
     pub fn verify_transaction_signature(
         transaction: &TriangleTransaction,
-        public_key: &PublicKey,
+        public_key: &VerifyingKey,
     ) -> bool {
         let message = format!(
             "{}:{}:{}:{}",
@@ -140,11 +138,13 @@ impl TriadChainWallet {
             transaction.timestamp
         );
 
-        if let Ok(signature) = Signature::from_bytes(&transaction.signature) {
-            public_key.verify(message.as_bytes(), &signature).is_ok()
-        } else {
-            false
+        if transaction.signature.len() == 64 {
+            if let Ok(signature_bytes) = transaction.signature.as_slice().try_into() {
+                let signature = Signature::from_bytes(signature_bytes);
+                return public_key.verify(message.as_bytes(), &signature).is_ok();
+            }
         }
+        false
     }
 
     /// Update wallet state from blockchain
@@ -337,8 +337,8 @@ impl TriadChainWallet {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublicWalletData {
     pub wallet_id: String,
-    #[serde(with = "public_key_serde")]
-    pub public_key: PublicKey,
+    #[serde(with = "verifying_key_serde")]
+    pub public_key: VerifyingKey,
     pub owned_triangles: HashMap<TriangleAddress, TriangleOwnership>,
     pub balance: Decimal,
     pub created_at: u64,
@@ -357,24 +357,24 @@ pub struct WalletStats {
     pub transaction_count: usize,
 }
 
-/// Serde helper for PublicKey
-mod public_key_serde {
+/// Serde helper for VerifyingKey
+mod verifying_key_serde {
     use super::*;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-    pub fn serialize<S>(key: &PublicKey, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(key: &VerifyingKey, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         key.as_bytes().serialize(serializer)
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<PublicKey, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<VerifyingKey, D::Error>
     where
         D: Deserializer<'de>,
     {
         let bytes: [u8; 32] = Deserialize::deserialize(deserializer)?;
-        PublicKey::from_bytes(&bytes).map_err(serde::de::Error::custom)
+        VerifyingKey::from_bytes(&bytes).map_err(serde::de::Error::custom)
     }
 }
 
