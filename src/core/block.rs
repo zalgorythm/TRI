@@ -7,7 +7,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::core::{
     triangle::Triangle,
-    fractal::FractalTriangle,
     address::TriangleAddress,
     errors::{SierpinskiError, SierpinskiResult},
 };

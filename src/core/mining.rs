@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 use rust_decimal::Decimal;
 
 use crate::core::{
-    block::{Block, TriangleTransaction, TriangleOperation, GeometricProof},
+    block::{Block, TriangleTransaction, GeometricProof},
     blockchain::TriadChainBlockchain,
-    fractal::{FractalTriangle, FractalStructure},
+    fractal::FractalTriangle,
     subdivision::{subdivide_triangle, SubdivisionResult, validate_subdivision},
     triangle::Triangle,
     address::TriangleAddress,
@@ -65,6 +65,7 @@ impl Default for MinerConfig {
 pub struct GeometricMiner {
     config: MinerConfig,
     is_mining: Arc<AtomicBool>,
+    #[allow(dead_code)]
     current_challenge: Option<GeometricChallenge>,
     hashrate: f64,
 }
@@ -119,7 +120,7 @@ impl GeometricMiner {
                     nonce,
                     config.max_nonce,
                 ) {
-                    Ok(block) => {
+                    Ok(_block) => {
                         // Successfully mined block
                         let mut blockchain_guard = blockchain.lock().unwrap();
                         match blockchain_guard.mine_block(reward_address.clone(), transactions.len()) {
@@ -200,7 +201,7 @@ impl GeometricMiner {
         start_nonce: u64,
         max_iterations: u64,
     ) -> SierpinskiResult<Block> {
-        let start_time = Instant::now();
+        let _start_time = Instant::now();
         
         for nonce_offset in 0..max_iterations {
             let nonce = start_nonce.wrapping_add(nonce_offset);
@@ -248,7 +249,7 @@ impl GeometricMiner {
     /// Verify geometric proof-of-work
     fn verify_geometric_work(
         challenge: &GeometricChallenge,
-        block: &Block,
+        _block: &Block,
         nonce: u64,
     ) -> SierpinskiResult<MiningResult> {
         let start_time = Instant::now();

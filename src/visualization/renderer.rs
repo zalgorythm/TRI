@@ -284,6 +284,7 @@ struct Scale {
     factor: Decimal,
     offset_x: Decimal,
     offset_y: Decimal,
+    #[allow(dead_code)]
     canvas_width: u32,
     canvas_height: u32,
 }

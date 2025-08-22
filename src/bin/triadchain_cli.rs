@@ -7,7 +7,6 @@ use std::{fs, path::PathBuf};
 
 use triadchain::{
     core::{
-        geometry::Point,
         genesis::{genesis_fractal_triangle, genesis_triangle_bounded},
         subdivision::{subdivide_to_depth, SubdivisionStats},
         validation::{validate_fractal_structure, validate_sierpinski_properties},
