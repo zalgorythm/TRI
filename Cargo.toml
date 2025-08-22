@@ -1,13 +1,13 @@
 [package]
-name = "sierpinski_crypto"
+name = "triadchain"
 version = "0.1.0"
 edition = "2021"
-description = "Geometric foundation for Sierpinski Triangle cryptocurrency"
-authors = ["Sierpinski Crypto Team"]
+description = "TriadChain - Revolutionary geometric cryptocurrency built on triangle fractals"
+authors = ["TriadChain Development Team"]
 
 [[bin]]
-name = "triangle_cli"
-path = "src/bin/triangle_cli.rs"
+name = "triadchain_cli"
+path = "src/bin/triadchain_cli.rs"
 
 [dependencies]
 rust_decimal = { version = "1.32", features = ["serde"] }

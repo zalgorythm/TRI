@@ -1,11 +1,11 @@
-//! Command-line interface for Sierpinski Triangle operations
+//! Command-line interface for TriadChain operations
 
 use clap::{Args, Parser, Subcommand};
 use rust_decimal::Decimal;
 use serde_json;
 use std::{fs, path::PathBuf};
 
-use sierpinski_crypto::{
+use triadchain::{
     core::{
         geometry::Point,
         genesis::{genesis_fractal_triangle, genesis_triangle_bounded},
@@ -18,8 +18,8 @@ use sierpinski_crypto::{
 };
 
 #[derive(Parser)]
-#[command(name = "triangle_cli")]
-#[command(about = "A CLI for Sierpinski Triangle cryptocurrency operations")]
+#[command(name = "triadchain_cli")]
+#[command(about = "A CLI for TriadChain geometric cryptocurrency operations")]
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
@@ -28,7 +28,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Generate a Sierpinski triangle fractal
+    /// Generate a TriadChain triangle fractal
     Generate(GenerateArgs),
     /// Validate a fractal structure
     Validate(ValidateArgs),
@@ -65,7 +65,7 @@ struct ValidateArgs {
     #[arg(short, long)]
     input: PathBuf,
     
-    /// Validate Sierpinski-specific properties
+    /// Validate TriadChain-specific properties
     #[arg(long)]
     sierpinski: bool,
     
@@ -153,7 +153,7 @@ fn main() {
 }
 
 fn handle_generate(args: GenerateArgs) {
-    println!("Generating Sierpinski triangle to depth {}...", args.depth);
+    println!("Generating TriadChain triangle to depth {}...", args.depth);
     
     // Create genesis triangle
     let genesis = if let Some(bounds_str) = args.bounds {
@@ -174,7 +174,7 @@ fn handle_generate(args: GenerateArgs) {
             Decimal::try_from(bounds[3]).unwrap(),
         ).expect("Failed to create bounded genesis triangle");
         
-        sierpinski_crypto::FractalTriangle::genesis(triangle)
+        triadchain::FractalTriangle::genesis(triangle)
     } else {
         genesis_fractal_triangle().expect("Failed to create genesis triangle")
     };
@@ -229,14 +229,14 @@ fn handle_validate(args: ValidateArgs) {
     }
     
     if args.sierpinski {
-        println!("\nValidating Sierpinski-specific properties...");
-        let sierpinski_result = validate_sierpinski_properties(&structure);
+        println!("\nValidating TriadChain-specific properties...");
+        let triadchain_result = validate_sierpinski_properties(&structure);
         
-        if sierpinski_result.is_valid {
-            println!("✓ Sierpinski properties are valid");
+        if triadchain_result.is_valid {
+            println!("✓ TriadChain properties are valid");
         } else {
-            println!("✗ Sierpinski validation failed:");
-            for error in &sierpinski_result.errors {
+            println!("✗ TriadChain validation failed:");
+            for error in &triadchain_result.errors {
                 println!("  ERROR: {}", error);
             }
         }

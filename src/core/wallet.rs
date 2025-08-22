@@ -10,13 +10,13 @@ use crate::core::{
     address::TriangleAddress,
     block::{TriangleTransaction, TriangleOperation},
     triangle::Triangle,
-    blockchain::SierpinskiBlockchain,
+    blockchain::TriadChainBlockchain,
     errors::{SierpinskiError, SierpinskiResult},
 };
 
 /// Wallet for managing cryptocurrency and triangle ownership
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SierpinskiWallet {
+pub struct TriadChainWallet {
     /// Wallet identifier
     pub wallet_id: String,
     /// Public key for the wallet
@@ -50,11 +50,11 @@ pub struct TriangleOwnership {
 
 /// Transaction builder for creating signed transactions
 pub struct TransactionBuilder {
-    wallet: SierpinskiWallet,
+    wallet: TriadChainWallet,
     gas_price: Decimal,
 }
 
-impl SierpinskiWallet {
+impl TriadChainWallet {
     /// Create a new wallet with generated keypair
     pub fn new() -> SierpinskiResult<Self> {
         let mut csprng = OsRng {};
@@ -63,7 +63,7 @@ impl SierpinskiWallet {
         
         let wallet_id = Self::derive_wallet_address(&public_key);
         
-        Ok(SierpinskiWallet {
+        Ok(TriadChainWallet {
             wallet_id,
             public_key,
             keypair: Some(keypair),
@@ -83,7 +83,7 @@ impl SierpinskiWallet {
         let public_key = keypair.public;
         let wallet_id = Self::derive_wallet_address(&public_key);
         
-        SierpinskiWallet {
+        TriadChainWallet {
             wallet_id,
             public_key,
             keypair: Some(keypair),
@@ -148,7 +148,7 @@ impl SierpinskiWallet {
     }
 
     /// Update wallet state from blockchain
-    pub fn sync_with_blockchain(&mut self, blockchain: &SierpinskiBlockchain) -> SierpinskiResult<()> {
+    pub fn sync_with_blockchain(&mut self, blockchain: &TriadChainBlockchain) -> SierpinskiResult<()> {
         // Update balance
         self.balance = blockchain.get_balance(&self.wallet_id);
 
@@ -184,9 +184,15 @@ impl SierpinskiWallet {
     }
 
     /// Estimate the value of a triangle based on its properties
-    fn estimate_triangle_value(&self, address: &TriangleAddress, blockchain: &SierpinskiBlockchain) -> Decimal {
+    fn estimate_triangle_value(&self, address: &TriangleAddress, blockchain: &TriadChainBlockchain) -> Decimal {
         // Value increases with depth (rarity) and decreases with age
-        let depth_multiplier = Decimal::new(2, 0).powu(address.depth() as u64);
+        let depth_multiplier = {
+            let mut result = Decimal::new(2, 0);
+            for _ in 0..address.depth() {
+                result *= Decimal::new(2, 0);
+            }
+            result
+        };
         let base_value = Decimal::new(10, 0); // 10 tokens base
         
         // Area-based value (smaller triangles are more valuable)
@@ -372,7 +378,7 @@ mod public_key_serde {
     }
 }
 
-impl Default for SierpinskiWallet {
+impl Default for TriadChainWallet {
     fn default() -> Self {
         Self::new().unwrap()
     }
@@ -384,7 +390,7 @@ mod tests {
 
     #[test]
     fn test_wallet_creation() {
-        let wallet = SierpinskiWallet::new().unwrap();
+        let wallet = TriadChainWallet::new().unwrap();
         assert!(!wallet.wallet_id.is_empty());
         assert!(wallet.wallet_id.starts_with("ST"));
         assert_eq!(wallet.balance, Decimal::ZERO);
@@ -392,7 +398,7 @@ mod tests {
 
     #[test]
     fn test_transaction_signing() {
-        let wallet = SierpinskiWallet::new().unwrap();
+        let wallet = TriadChainWallet::new().unwrap();
         
         let mut transaction = TriangleTransaction::new(
             None,
@@ -406,12 +412,12 @@ mod tests {
         assert!(!transaction.signature.is_empty());
         
         // Verify signature
-        assert!(SierpinskiWallet::verify_transaction_signature(&transaction, &wallet.public_key));
+        assert!(TriadChainWallet::verify_transaction_signature(&transaction, &wallet.public_key));
     }
 
     #[test]
     fn test_wallet_stats() {
-        let wallet = SierpinskiWallet::new().unwrap();
+        let wallet = TriadChainWallet::new().unwrap();
         let stats = wallet.get_stats();
         
         assert_eq!(stats.total_triangles, 0);

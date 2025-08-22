@@ -1,6 +1,6 @@
 # Overview
 
-This project is a blockchain-based cryptocurrency system built in Rust that uses the Sierpinski Triangle fractal as its core mathematical foundation. The system implements a unique geometric proof-of-work consensus mechanism where miners perform triangle subdivisions following the Sierpinski Triangle pattern. The architecture combines traditional blockchain concepts with fractal geometry, creating a novel cryptocurrency that uses geometric operations as the basis for mining and transaction validation.
+TriadChain is a revolutionary blockchain-based cryptocurrency system built in Rust that uses triangle fractals as its core mathematical foundation. The system implements a unique geometric proof-of-work consensus mechanism where miners perform triangle subdivisions following fractal patterns. The architecture combines traditional blockchain concepts with fractal geometry, creating a novel cryptocurrency that uses geometric operations as the basis for mining and transaction validation.
 
 # User Preferences
 
@@ -15,7 +15,7 @@ The system follows a modular Rust library structure with distinct layers for geo
 The architecture centers on precise coordinate handling using fixed-point decimals (rust_decimal crate) to ensure deterministic geometric calculations across all nodes. Triangle states are managed through an enum system (Genesis, Active, Subdivided, Void) with strict validation rules for geometric integrity.
 
 ## Blockchain Design
-Uses a custom block structure that contains triangle transaction vectors and geometric proofs rather than traditional financial transactions. The consensus mechanism is based on geometric proof-of-work where miners must perform valid Sierpinski Triangle subdivisions with increasing complexity.
+Uses a custom block structure that contains triangle transaction vectors and geometric proofs rather than traditional financial transactions. The consensus mechanism is based on geometric proof-of-work where miners must perform valid triangle subdivisions with increasing complexity.
 
 ## Mining System
 Implements a unique geometric proof-of-work algorithm where mining difficulty adjusts based on triangle subdivision complexity and network hashrate. Miners compete to find valid triangle subdivisions that meet geometric and cryptographic requirements.
@@ -33,15 +33,19 @@ Custom peer-to-peer protocol designed for efficient synchronization of triangle 
 - `ed25519-dalek`: Implements digital signatures for transaction authentication
 - `thiserror`: Structured error handling across all geometric and blockchain operations
 - `serde`: Serialization framework for network communication and data persistence
+- `blake3`: Fast, secure cryptographic hashing for blocks and transactions
+- `uuid`: Unique identifier generation for transactions and nodes
+- `tokio`: Asynchronous runtime for network operations
 
 ## Cryptographic Libraries
-- SHA-256 hashing algorithms for block and transaction integrity
+- BLAKE3 hashing algorithms for block and transaction integrity
 - Ed25519 elliptic curve cryptography for wallet operations and transaction signing
 - Custom geometric hash functions for triangle-specific operations
 
 ## Network Dependencies
 - TCP/IP networking for peer-to-peer communication
-- Binary serialization protocols for efficient triangle data transmission
+- Async networking with Tokio for efficient connection handling
+- JSON serialization protocols for efficient triangle data transmission
 - Future integration planned for distributed storage systems and database backends
 
 ## Development Tools
