@@ -1,4 +1,4 @@
-//! Blockchain implementation for Sierpinski Triangle cryptocurrency
+//! Blockchain implementation for TriadChain cryptocurrency
 
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ use crate::core::{
 
 /// The main blockchain structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SierpinskiBlockchain {
+pub struct TriadChainBlockchain {
     /// Chain of blocks
     pub blocks: Vec<Block>,
     /// Current fractal state representing all triangle ownership
@@ -30,10 +30,10 @@ pub struct SierpinskiBlockchain {
     pub triangle_owners: HashMap<TriangleAddress, String>,
 }
 
-impl SierpinskiBlockchain {
+impl TriadChainBlockchain {
     /// Create a new blockchain with genesis block
     pub fn new() -> SierpinskiResult<Self> {
-        let mut blockchain = SierpinskiBlockchain {
+        let mut blockchain = TriadChainBlockchain {
             blocks: Vec::new(),
             fractal_state: FractalStructure::new(),
             mempool: Vec::new(),
@@ -345,7 +345,7 @@ pub struct BlockchainStats {
     pub unique_addresses: usize,
 }
 
-impl Default for SierpinskiBlockchain {
+impl Default for TriadChainBlockchain {
     fn default() -> Self {
         Self::new().unwrap()
     }
@@ -357,14 +357,14 @@ mod tests {
 
     #[test]
     fn test_blockchain_creation() {
-        let blockchain = SierpinskiBlockchain::new().unwrap();
+        let blockchain = TriadChainBlockchain::new().unwrap();
         assert_eq!(blockchain.blocks.len(), 1); // Genesis block
         assert!(blockchain.total_supply > Decimal::ZERO);
     }
 
     #[test]
     fn test_blockchain_validation() {
-        let blockchain = SierpinskiBlockchain::new().unwrap();
+        let blockchain = TriadChainBlockchain::new().unwrap();
         assert!(blockchain.validate_chain().unwrap());
     }
 

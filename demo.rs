@@ -171,7 +171,7 @@ impl SierpinskiFractal {
 }
 
 fn main() {
-    println!("🔺 Sierpinski Triangle Cryptocurrency - Core Demo\n");
+    println!("🔺 TriadChain Cryptocurrency - Core Demo\n");
     
     let mut fractal = SierpinskiFractal::new();
     

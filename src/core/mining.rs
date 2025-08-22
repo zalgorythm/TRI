@@ -8,7 +8,7 @@ use rust_decimal::Decimal;
 
 use crate::core::{
     block::{Block, TriangleTransaction, TriangleOperation, GeometricProof},
-    blockchain::SierpinskiBlockchain,
+    blockchain::TriadChainBlockchain,
     fractal::{FractalTriangle, FractalStructure},
     subdivision::{subdivide_triangle, SubdivisionResult, validate_subdivision},
     triangle::Triangle,
@@ -83,7 +83,7 @@ impl GeometricMiner {
     /// Start mining process
     pub fn start_mining(
         &mut self,
-        blockchain: Arc<Mutex<SierpinskiBlockchain>>,
+        blockchain: Arc<Mutex<TriadChainBlockchain>>,
         reward_address: String,
     ) -> SierpinskiResult<()> {
         self.is_mining.store(true, Ordering::Relaxed);
@@ -162,7 +162,7 @@ impl GeometricMiner {
     }
 
     /// Generate a geometric mining challenge
-    fn generate_challenge(blockchain: &SierpinskiBlockchain, precision: u32) -> GeometricChallenge {
+    fn generate_challenge(blockchain: &TriadChainBlockchain, precision: u32) -> GeometricChallenge {
         // Use the latest block's geometry as basis for challenge
         let latest_block = blockchain.blocks.last().unwrap();
         
@@ -386,7 +386,7 @@ mod tests {
 
     #[test]
     fn test_geometric_challenge_generation() {
-        let blockchain = SierpinskiBlockchain::new().unwrap();
+        let blockchain = TriadChainBlockchain::new().unwrap();
         let challenge = GeometricMiner::generate_challenge(&blockchain, 10);
         
         assert!(!challenge.challenge_id.is_empty());

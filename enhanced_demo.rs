@@ -5,9 +5,9 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tokio;
 
-use sierpinski_crypto::core::{
-    blockchain::SierpinskiBlockchain,
-    wallet::SierpinskiWallet,
+use triadchain::core::{
+    blockchain::TriadChainBlockchain,
+    wallet::TriadChainWallet,
     mining::{GeometricMiner, MinerConfig},
     economics::EconomicsEngine,
     block::TriangleOperation,
@@ -19,13 +19,13 @@ use rust_decimal::Decimal;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🚀 SIERPINSKI TRIANGLE CRYPTOCURRENCY - ENHANCED SYSTEM DEMO");
+    println!("🚀 TRIADCHAIN - ENHANCED GEOMETRIC CRYPTOCURRENCY DEMO");
     println!("═══════════════════════════════════════════════════════════════");
     println!();
 
     // 1. Initialize the blockchain
     println!("🔗 Step 1: Initializing Blockchain...");
-    let mut blockchain = SierpinskiBlockchain::new()?;
+    let mut blockchain = TriadChainBlockchain::new()?;
     println!("✅ Genesis block created with ID: {}", blockchain.blocks[0].hash()[..16].to_string());
     
     let blockchain_arc = Arc::new(Mutex::new(blockchain));
@@ -34,9 +34,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2. Create wallets for different users
     println!("💰 Step 2: Creating User Wallets...");
-    let alice_wallet = SierpinskiWallet::new()?;
-    let bob_wallet = SierpinskiWallet::new()?;
-    let miner_wallet = SierpinskiWallet::new()?;
+    let alice_wallet = TriadChainWallet::new()?;
+    let bob_wallet = TriadChainWallet::new()?;
+    let miner_wallet = TriadChainWallet::new()?;
     
     println!("👩 Alice's wallet: {}", alice_wallet.wallet_id);
     println!("👨 Bob's wallet: {}", bob_wallet.wallet_id);
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 4. Demonstrate triangle value calculation
     println!("💎 Step 4: Triangle Valuation System...");
-    let genesis_triangle = sierpinski_crypto::core::genesis::genesis_triangle()?;
+    let genesis_triangle = triadchain::core::genesis::genesis_triangle()?;
     let triangle_value = economics.calculate_triangle_value(
         &genesis_triangle,
         &TriangleAddress::genesis(),
@@ -102,7 +102,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Point::from_f64(1.0, 1.732)?,
     )?;
     
-    let mut create_tx = sierpinski_crypto::core::block::TriangleTransaction::new(
+    let mut create_tx = triadchain::core::block::TriangleTransaction::new(
         None,
         TriangleAddress::from_string_representation("0")?,
         TriangleOperation::Create,
@@ -199,9 +199,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ Transactions: Triangle creation, transfer, and subdivision");
     println!("✅ Validation: Comprehensive geometric and cryptographic verification");
     println!();
-    println!("🔺 The Sierpinski Triangle Cryptocurrency is mathematically elegant,");
-    println!("   economically sound, and technically advanced. The geometric foundation");
-    println!("   provides unique advantages over traditional hash-based cryptocurrencies!");
+    println!("🔺 TriadChain is mathematically elegant, economically sound, and technically");
+    println!("   advanced. The geometric foundation provides unique advantages over");  
+    println!("   traditional hash-based cryptocurrencies!");
 
     Ok(())
 }

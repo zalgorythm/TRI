@@ -8,7 +8,7 @@ use crate::core::{
     address::TriangleAddress,
     triangle::Triangle,
     fractal::FractalStructure,
-    blockchain::SierpinskiBlockchain,
+    blockchain::TriadChainBlockchain,
     errors::{SierpinskiError, SierpinskiResult},
 };
 
@@ -133,8 +133,13 @@ impl EconomicsEngine {
 
         // Depth bonus (exponential increase with depth)
         let depth = address.depth();
-        let depth_bonus = base_area_value * 
-            self.config.area_value_curve.depth_multiplier.powu(depth as u64);
+        let depth_bonus = base_area_value * {
+            let mut multiplier = Decimal::ONE;
+            for _ in 0..depth {
+                multiplier *= self.config.area_value_curve.depth_multiplier;
+            }
+            multiplier
+        };
 
         // Rarity bonus based on triangle properties
         let rarity_bonus = self.calculate_rarity_bonus(triangle, address)?;

@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::core::{
     block::Block,
-    blockchain::SierpinskiBlockchain,
+    blockchain::TriadChainBlockchain,
     mining::GeometricChallenge,
     errors::{SierpinskiError, SierpinskiResult},
 };
@@ -82,13 +82,13 @@ pub struct NetworkNode {
     pub node_id: String,
     pub listen_address: SocketAddr,
     pub peers: Arc<Mutex<HashMap<String, PeerInfo>>>,
-    pub blockchain: Arc<Mutex<SierpinskiBlockchain>>,
+    pub blockchain: Arc<Mutex<TriadChainBlockchain>>,
     pub message_handlers: HashMap<String, Box<dyn Fn(&NetworkMessage) + Send + Sync>>,
 }
 
 impl NetworkNode {
     /// Create a new network node
-    pub fn new(listen_address: SocketAddr, blockchain: Arc<Mutex<SierpinskiBlockchain>>) -> Self {
+    pub fn new(listen_address: SocketAddr, blockchain: Arc<Mutex<TriadChainBlockchain>>) -> Self {
         NetworkNode {
             node_id: format!("node_{}", Uuid::new_v4()),
             listen_address,
@@ -149,7 +149,7 @@ impl NetworkNode {
         mut stream: TcpStream,
         addr: SocketAddr,
         peers: Arc<Mutex<HashMap<String, PeerInfo>>>,
-        blockchain: Arc<Mutex<SierpinskiBlockchain>>,
+        blockchain: Arc<Mutex<TriadChainBlockchain>>,
         node_id: String,
     ) -> SierpinskiResult<()> {
         let mut buffer = vec![0; 4096];
@@ -204,7 +204,7 @@ impl NetworkNode {
         message: &NetworkMessage,
         sender_addr: &SocketAddr,
         peers: &Arc<Mutex<HashMap<String, PeerInfo>>>,
-        blockchain: &Arc<Mutex<SierpinskiBlockchain>>,
+        blockchain: &Arc<Mutex<TriadChainBlockchain>>,
         node_id: &str,
     ) -> Option<NetworkMessage> {
         match message {
@@ -424,7 +424,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_network_node_creation() {
-        let blockchain = Arc::new(Mutex::new(SierpinskiBlockchain::new().unwrap()));
+        let blockchain = Arc::new(Mutex::new(TriadChainBlockchain::new().unwrap()));
         let addr = "127.0.0.1:8080".parse().unwrap();
         let node = NetworkNode::new(addr, blockchain);
         
