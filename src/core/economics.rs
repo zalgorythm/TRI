@@ -73,24 +73,10 @@ pub struct StakePosition {
     pub accumulated_rewards: Decimal,
 }
 
-/// Triangle rental economics
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TriangleRental {
-    pub triangle_address: TriangleAddress,
-    pub owner_address: String,
-    pub rental_rate_per_block: Decimal,
-    pub minimum_rental_period: u64,
-    pub current_renter: Option<String>,
-    pub rental_start_block: u64,
-    pub rental_end_block: u64,
-    pub security_deposit: Decimal,
-}
-
 /// Main economics engine
 pub struct EconomicsEngine {
     pub config: TokenEconomics,
     pub staking_pools: HashMap<TriangleAddress, StakingPool>,
-    pub rentals: HashMap<TriangleAddress, TriangleRental>,
     pub market_prices: HashMap<TriangleAddress, Decimal>,
 }
 
@@ -114,7 +100,6 @@ impl EconomicsEngine {
         EconomicsEngine {
             config,
             staking_pools: HashMap::new(),
-            rentals: HashMap::new(),
             market_prices: HashMap::new(),
         }
     }
@@ -286,31 +271,6 @@ impl EconomicsEngine {
         Ok(rewards)
     }
 
-    /// Create triangle rental listing
-    pub fn create_rental(&mut self,
-        triangle_address: TriangleAddress,
-        owner_address: String,
-        rental_rate: Decimal
-    ) -> SierpinskiResult<()> {
-        if self.rentals.contains_key(&triangle_address) {
-            return Err(SierpinskiError::validation("Triangle already listed for rental"));
-        }
-
-        let rental = TriangleRental {
-            triangle_address: triangle_address.clone(),
-            owner_address,
-            rental_rate_per_block: rental_rate,
-            minimum_rental_period: 100, // 100 blocks minimum
-            current_renter: None,
-            rental_start_block: 0,
-            rental_end_block: 0,
-            security_deposit: rental_rate * Decimal::new(10, 0), // 10x rate as deposit
-        };
-
-        self.rentals.insert(triangle_address, rental);
-        Ok(())
-    }
-
     /// Update token supply after block mining
     pub fn update_supply_after_block(&mut self, 
         _new_triangles_created: u32,
@@ -341,7 +301,6 @@ impl EconomicsEngine {
             total_staked_value: self.staking_pools.values()
                 .map(|pool| pool.total_staked)
                 .sum(),
-            active_rentals: self.rentals.len(),
             average_triangle_value: self.calculate_average_triangle_value(),
         }
     }
@@ -376,7 +335,6 @@ pub struct EconomicsStats {
     pub deflation_rate: Decimal,
     pub active_staking_pools: usize,
     pub total_staked_value: Decimal,
-    pub active_rentals: usize,
     pub average_triangle_value: Decimal,
 }
 
